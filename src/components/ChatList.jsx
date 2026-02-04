@@ -4,20 +4,27 @@ import UsersLoadingSkeleton from "./UserLoadingSkeleton.jsx";
 import NoChatsFound from "../components/NoChatsFound.jsx";
 import {useAuthStore} from "../store/useAuthStore.js";
 function ChatList() {
-  const { getMyChatPartners, chats, isUserLoading, setSelectedUser } = useChatStore();
+  const { getAllContacts ,getMyChatPartners, chat , allContacts , isUserLoading, setSelectedUser } = useChatStore();
   const {onlineUsers } = useAuthStore() ;
 
+  // useEffect(() => {
+  //   getMyChatPartners ();
+  // }, [getMyChatPartners]
+  // );
   useEffect(() => {
-    getMyChatPartners ();
-  }, [getMyChatPartners]
-  );
+    getAllContacts();
+    
+    getMyChatPartners();
+    },
+[]);
+
   if (isUserLoading) return <UsersLoadingSkeleton />;
-   if (chats.length === 0) return <NoChatsFound />;
+   if (allContacts.length === 0) return <NoChatsFound />;
 
   return (
     <> 
-    {chats.map((chat) => (
-      <div key = {chat.id}
+    {allContacts.map((chat) => (
+      <div key = {chat._id}
       className="bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors"
       onClick={() => setSelectedUser(chat)}>
         <div className="flex items-center gap-3">
@@ -37,7 +44,8 @@ function ChatList() {
      }
     </>
   
-)}
+);
+}
   
 
 

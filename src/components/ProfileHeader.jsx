@@ -3,6 +3,7 @@ import {LogOutIcon , VolumeOffIcon , Volume2Icon } from "lucide-react" ;
 import {useAuthStore} from "../store/useAuthStore.js" ;
 import {useChatStore} from "../store/useChatStore.js" ;
 
+
 const mouseClickSound = new Audio ("/sounds/mouse-click.mp3");
  function ProfileHeader() {
   const {logout , authUser , updateProfile} = useAuthStore();

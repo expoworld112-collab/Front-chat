@@ -2,8 +2,7 @@
 function NoConversationPlaceholder() {
   return (
     <div>
-      No conversation placeholder 
-    </div>
+select from chats or contacts to start conversation    </div>
   )
 }
 
