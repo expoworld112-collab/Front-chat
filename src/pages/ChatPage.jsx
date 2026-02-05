@@ -3,7 +3,7 @@ import BorderAnimatedContainer from "../components/BoarderAnimatedContainer.jsx"
 import ProfileHeader from "../components/ProfileHeader.jsx";
 import ActiveTabSwitch from "../components/ActiveTabSwitch.jsx";
 import ChatsList from "../components/ChatList";
-import ContactList from "../components/ChatContainer.jsx";
+ import ContactList from "../components/ContactList.jsx";
 import ChatContainer from "../components/ChatContainer.jsx";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder.jsx";
 
