@@ -4,7 +4,7 @@ import UsersLoadingSkeleton from "./UserLoadingSkeleton.jsx";
 import NoChatsFound from "../components/NoChatsFound.jsx";
 import {useAuthStore} from "../store/useAuthStore.js";
 function ChatList() {
-  const { getAllContacts ,getMyChatPartners, chat , allContacts , isUserLoading, setSelectedUser } = useChatStore();
+  const { getAllContacts ,getMyChatPartners , allContacts , isUserLoading, setSelectedUser } = useChatStore();
   const {onlineUsers } = useAuthStore() ;
 
   // useEffect(() => {

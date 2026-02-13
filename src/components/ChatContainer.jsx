@@ -1,104 +1,39 @@
-import { useChatStore } from "../store/useChatStore.js";
-import { useAuthStore } from "../store/useAuthStore.js";
-import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder.jsx";
+import { useEffect, useRef } from "react";
+import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
+import ChatHeader from "./ChatHeader";
+import MessageInput from "./MessageInput";
+import MessageLoadingSkeleton from "./MessageLoadingSkeleton";
+import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
+import ChatMessage from "./ChatMessage";
 
-import { useEffect ,useRef } from "react";
-import ChatHeader from "./ChatHeader.jsx";
-import MessageInput from "./MessageInput.jsx";
-import MessagesLoadingSkeleton from "./MessageLoadingSkeleton.jsx";
-// function ChatContainer() {
-//   const { selectedUser, getMessagesByUserId , messages, isMessagesLoading , subscribeToMessages , unsubscribeFromMessages } = useChatStore();
-//   const { authUser } = useAuthStore();
-//   const messageEndRef= useRef(null);
-
-  
-
-
-//   useEffect(()=> {
-//     getMessagesByUserId(selectedUser._id);
-//     subscribeToMessages();
-
-//     //clean up 
-//     return () => unsubscribeFromMessages();
-//   } , [selectedUser]) ;  
-// useEffect(() => {
-//   if (messageEndRef.current){
-//     messageEndRef.current.scrollIntoView({ behavior: "smooth"});
-//   }
-// }, [messages]);
-
-// if (!selectedUser) {
-//   return (
-//     <div className="flex-1 flex items-center justify-center">
-//       <NoChatHistoryPlaceholder name="Select a chat" />
-//     </div>
-//   );
-// }
-//   return (
-//     <>
-//       <ChatHeader />
-//       <div className="flex-1 px-6 overflow-y-auto py-8">
-//         {messages.length > 0 && !isMessagesLoading ? (
-//           <div className="max-w-3xl mx-auto space-y-6">
-//             {messages.map(msg => (
-//               <div key={msg._id}
-//                 className={`chat ${msg.senderId === authUser._id ? "chat-end" : "chat-start"}`}>
-//                 <div className={`chat-bubble relative ${msg.senderId === authUser._id
-//                     ? "bg-cyan-600  text-white"
-//                     : "bg-slate-800 text-slate-200"
-//                   }`}>
-//                   {msg.image && (
-//                     <img src={msg.image} alt="Shared" className="rounded-lg h-48 object-cover" />
-//                   )}
-//                   {msg.text && <p className="mt-2">{msg.text}</p>}
-//                   <p className="text-xs mt-1 opacity-75 flex items-center gap-1">
-//                     {new Date(msg.createdAt).toLocaleTimeString(undefined,{
-//                       hour: "2-digit" ,
-//                       minute: "2-digit" ,
-//                     })}
-//                   </p>
-//                 </div>
-//               </div>
-//             ))}
-            
-//             <div ref={messageEndRef}/>
-//           </div>
-//         ) : isMessagesLoading ? ( <MessagesLoadingSkeleton />  ): (
-//           <NoChatHistoryPlaceholder name={selectedUser.fullName} />
-//         )}
-//       </div>
-//       <MessageInput />
-//     </>
-//   );
-// }
 function ChatContainer() {
   const {
     selectedUser,
-    getMessagesByUserId,
     messages,
     isMessagesLoading,
+    getMessagesByUserId,
     subscribeToMessages,
-    unsubscribeFromMessages
+    unsubscribeFromMessages,
   } = useChatStore();
+const socket = useAuthStore((state) => state.socket);
 
-  const { authUser } = useAuthStore();
+  const { authUser } = useAuthStore((state)=> state.authUser);
   const messageEndRef = useRef(null);
+   
 
-  // ✅ Only run when a user is selected
-  useEffect(() => {
-    if (!selectedUser?._id) return;
-
+   useEffect(() => {
+    if(!selectedUser || !socket) return ;
     getMessagesByUserId(selectedUser._id);
-    subscribeToMessages();
+    subscribeToMessages(socket);
 
-    return () => unsubscribeFromMessages();
-  }, [selectedUser?._id]);
+    return () => unsubscribeFromMessages(socket);
+  }, [selectedUser?._id , socket]);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ✅ Early return AFTER hooks
   if (!selectedUser) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -108,50 +43,61 @@ function ChatContainer() {
   }
 
   return (
-    <>
+    <div className="flex-1 flex flex-col h-full">
       <ChatHeader />
-      <div className="flex-1 px-6 overflow-y-auto py-8">
-        {messages.length > 0 && !isMessagesLoading ? (
-          <div className="max-w-3xl mx-auto space-y-6">
-            {messages.map(msg => (
-              <div
-                key={msg._id}
-                className={`chat ${msg.senderId === authUser._id ? "chat-end" : "chat-start"}`}
-              >
-                <div
-                  className={`chat-bubble relative ${
-                    msg.senderId === authUser._id
-                      ? "bg-cyan-600 text-white"
-                      : "bg-slate-800 text-slate-200"
-                  }`}
-                >
-                  {msg.image && (
-                    <img src={msg.image} alt="Shared" className="rounded-lg h-48 object-cover" />
-                  )}
-                  {msg.text && <p className="mt-2">{msg.text}</p>}
 
-                  {/* ✅ Prevent crash if date missing */}
-                  {msg.createdAt && (
-                    <p className="text-xs mt-1 opacity-75 flex items-center gap-1">
-                      {new Date(msg.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-            <div ref={messageEndRef} />
-          </div>
-        ) : isMessagesLoading ? (
-          <MessagesLoadingSkeleton />
-        ) : (
+      <div className="flex-1 px-6 py-4 overflow-y-auto space-y-4">
+        {isMessagesLoading ? (
+          <MessageLoadingSkeleton />
+        ) : messages.length === 0 ? (
           <NoChatHistoryPlaceholder name={selectedUser.fullName} />
-        )}
+        // ) : (
+        //   messages.map((msg) => (
+        //     <ChatMessage
+        //       key={msg._id}
+        //       message={msg}
+        //       isSender={msg.senderId === authUser._id}
+        //       avatar={
+        //         msg.senderId === authUser._id
+        //           ? authUser.profilePic
+        //           : selectedUser.profilePic
+        //       }
+        //       name={
+        //         msg.senderId === authUser._id
+        //           ? authUser.fullName
+        //           : selectedUser.fullName
+        //       }
+        //     />
+        //   ))
+        // ) 
+
+        ) : (
+  <>
+    {messages.map((msg) => {
+      const senderId = msg.senderId?.toString();
+      const authId = authUser?._id?.toString();
+
+      const isSender = senderId === authId;
+
+      return (
+        <ChatMessage
+          key={msg._id}
+          message={msg}
+          isSender={isSender}
+          avatar={isSender ? authUser.profilePic : selectedUser.profilePic}
+          name={isSender ? authUser.fullName : selectedUser.fullName}
+        />
+      );
+    })}
+  </>
+)}
+
+        
+        <div ref={messageEndRef} />
       </div>
+
       <MessageInput />
-    </>
+    </div>
   );
 }
 

@@ -7,7 +7,7 @@ const getErrorMessage = (error, fallback = "Something went wrong") => {
   return error?.response?.data?.message || error?.message || fallback;
 };
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:4000" : "/";
 // export const useAuthStore = create((set, get) => ({
 //     authUser: null,
 //     isCheckingAuth: true,
@@ -111,21 +111,6 @@ export const useAuthStore = create((set, get) => ({
   socket: null,
   onlineUsers: [],
 
-  // checkAuth: async () => {
-  //   try {
-  //     const res = await axiosInstance.get("/auth/check");
-  //     set({ authUser: res.data });
-  //     get().connectSocket();
-  //   } catch (error) {
-  //     console.log(
-  //       "Auth check FULL error:",
-  //       error?.response || error.message
-  //     );
-  //     set({ authUser: null });
-  //   } finally {
-  //     set({ isCheckingAuth: false });
-  //   }
-  // },
 
   checkAuth: async () => {
   try {
@@ -187,16 +172,37 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  updateProfile: async (data) => {
-    try {
-      const res = await axiosInstance.put("/auth/update-profile", data);
-      set({ authUser: res.data });
-      toast.success("Profile updated successfully");
-    } catch (error) {
-      toast.error(getErrorMessage(error, "Update failed"));
-    }
-  },
-fetchUnread: async () => {
+
+updateProfile: async (file) => {
+  if (!file) {
+    toast.error("Please select a file");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("profilePic", file);
+
+    const res = await axiosInstance.put(
+      "/auth/update-profile",
+      formData,
+      // {
+      //   // headers: {
+      //   //   "Content-Type": "multipart/form-data",
+      //   // },
+      // }
+    );
+
+    set({ authUser: res.data });
+    toast.success("Profile updated successfully");
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message || "Profile update failed"
+    );
+  }
+},
+
+  fetchUnread: async () => {
   try {
     const res = await axiosInstance.get("/messages/unread");
     set({ unreadCounts: res.data });
@@ -206,21 +212,39 @@ fetchUnread: async () => {
 },
 
 
-  connectSocket: () => {
-    const { authUser, socket } = get();
-    if (!authUser || socket?.connected) return;
+  // connectSocket: () => {
+  //   const { authUser, socket } = get();
+  //   if (!authUser || socket?.connected) return;
 
-    const newSocket = io(BASE_URL, {
-      withCredentials: true,
-    });
+  //   const newSocket = io(BASE_URL, {
+  //     withCredentials: true,
+  //   });
 
-    newSocket.connect();
-    set({ socket: newSocket });
+  //   newSocket.connect();
+  //   set({ socket: newSocket });
 
-    newSocket.on("getOnlineUsers", (userIds) => {
-      set({ onlineUsers: userIds });
-    });
-  },
+  //   newSocket.on("getOnlineUsers", (userIds) => {
+  //     set({ onlineUsers: userIds });
+  //   });
+  // },
+connectSocket: () => {
+  const user = get ().authUser ;
+
+if (!user || get().socket?.connected) return;
+  const socket = io(import.meta.env.VITE_SERVER_URL, {
+    withCredentials: true,
+    query: {
+      userId: user._id,
+    },
+  });
+
+  socket.connect();
+  socket.on("getOnlineUsers" , (users) => {
+    set({getOnlineusers:users}) ;
+  });
+
+  set({ socket });
+},
 
   disconnectSocket: () => {
     const socket = get().socket;

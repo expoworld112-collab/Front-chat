@@ -6,9 +6,18 @@ import ChatsList from "../components/ChatList";
  import ContactList from "../components/ContactList.jsx";
 import ChatContainer from "../components/ChatContainer.jsx";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder.jsx";
+import { useEffect } from 'react';
 
 function ChatPage() {
 const {activeTab , selectedUser} = useChatStore(); 
+
+  useEffect(() => {
+    const { subscribeToProfileUpdates, unsubscribeFromProfileUpdates } = useChatStore.getState();
+    subscribeToProfileUpdates();
+
+    return () => unsubscribeFromProfileUpdates();
+  }, []);
+
   return (
     <div className =" relative w-full max-w-6xl h-[800px]">
       <BorderAnimatedContainer>
