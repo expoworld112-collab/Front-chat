@@ -72,6 +72,7 @@ import { useEffect } from "react";
 import PageLoader from "./components/PageLoader.jsx";
 import { Toaster } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore.js";
+import {connectSocket} from "./lib/socket.js";
 
 function App() {
   const authUser = useAuthStore((state) => state.authUser);
@@ -95,6 +96,7 @@ function App() {
   // 👥 Load friend data only after login
   useEffect(() => {
     if (authUser) {
+      connectSocket();
       fetchFriendData();
     }
   }, [authUser, fetchFriendData]);
