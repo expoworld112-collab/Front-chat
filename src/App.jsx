@@ -80,20 +80,11 @@ function App() {
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
 
   const fetchFriendData = useChatStore((state) => state.fetchFriendData);
-  // const { subscribeToProfileUpdates, unsubscribeFromProfileUpdates } = useChatStore();
-  //  useEffect(() => {
-  //   subscribeToProfileUpdates();
-  //   return () => unsubscribeFromProfileUpdates();
-  // }, []);
-
-
-
-  // 🔐 Check login on app start
+ 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  // 👥 Load friend data only after login
   useEffect(() => {
     if (authUser) {
       connectSocket();
