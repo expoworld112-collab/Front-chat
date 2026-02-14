@@ -121,7 +121,7 @@ function ProfileHeader() {
       formData.append("profilePic", file);
 
       try {
-        const res = await axiosInstance.put("/users/profile-pic", formData, {
+        const res = await axiosInstance.put("/auth/update-profile", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 

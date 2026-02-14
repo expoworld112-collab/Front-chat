@@ -540,7 +540,7 @@ export const useChatStore = create((set, get) => ({
 
   sendFriendRequest: async (receiverId) => {
     try {
-      await axiosInstance.post(`/friends/send/${receiverId}`);
+      await axiosInstance.post("/friends/send/" ,{receiverId});
       toast.success("Friend request sent");
       get().fetchFriendData();
     } catch (err) {
