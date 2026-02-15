@@ -19,7 +19,7 @@ export const useChatStore = create((set, get) => ({
   friends: [],
   friendRequests: [],
   sentRequests: [],
-
+getOnlineUsers,
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
     set({ isSoundEnabled: !get().isSoundEnabled });
