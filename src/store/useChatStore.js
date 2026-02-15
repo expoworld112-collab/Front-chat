@@ -5,7 +5,6 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore.js";
-import { connectSocket } from "../lib/socket.js";
 
 export const useChatStore = create((set, get) => ({
   allContacts: [],
@@ -152,14 +151,14 @@ getMessagesByUserId: async (userId) => {
 
 
 unsubscribeFromMessages: () => {
-  const socket = connectSocket();
+  const socket = useAuthStore.getState().socket ;
   if (!socket) return ;
   socket?.off("newMessage");
 },
 
 subscribeToProfileUpdates: () => {
-  // const socket = useAuthStore.getState().socket;
-  const socket = connectSocket();
+  const socket = useAuthStore.getState().socket;
+  // const socket = connectSocket();
 
   if (!socket) {
     console.warn("Socket not initialized yet");

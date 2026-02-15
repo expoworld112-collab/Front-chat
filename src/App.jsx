@@ -73,7 +73,7 @@ import PageLoader from "./components/PageLoader.jsx";
 import { Toaster } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore.js";
 import {connectSocket , getSocket} from "./lib/socket.js";
-
+import {getOnlineUsers} from "./store/useChatStore.js";
 function App() {
   const authUser = useAuthStore((state) => state.authUser);
   const checkAuth = useAuthStore((state) => state.checkAuth);
