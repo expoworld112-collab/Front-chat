@@ -73,7 +73,7 @@ import PageLoader from "./components/PageLoader.jsx";
 import { Toaster } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore.js";
 import {connectSocket , getSocket} from "./lib/socket.js";
-import {getOnlineUsers} from "./store/useChatStore.js";
+import {OnlineUsers} from "./store/useChatStore.js";
 function App() {
   const authUser = useAuthStore((state) => state.authUser);
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -89,14 +89,14 @@ function App() {
     if (authUser) {
     // const socket =  connectSocket();
     const socket = connectSocket(authUser._id);
-    socket.off(getOnlineUsers) ;
-    socket.on("getOnlineUsers" ,( users) => {
+    socket.off(OnlineUsers) ;
+    socket.on("OnlineUsers" ,( users) => {
     //  useAuthStore.getState({ononline: users}) ;
     useAuthStore.setState({onlineUsers:users})
     });
       fetchFriendData();
     } return () => {
-    socket.off("getOnlineUsers");
+    socket.off("OnlineUsers");
     };
   }, [authUser, fetchFriendData]);
 
