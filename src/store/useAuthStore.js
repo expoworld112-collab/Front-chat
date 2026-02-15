@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
-import { io } from "socket.io-client";
+import { disconnectSocket } from "../lib/socket";
 const getErrorMessage = (error, fallback = "Something went wrong") => {
   return error?.response?.data?.message || error?.message || fallback;
 };
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:4000" : "/";
+// const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:4000" : "/";
 
 
 
@@ -17,7 +17,7 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   isSigningUp: false,
   isLoggingIn: false,
-  socket: null,
+  // socket: null,
   onlineUsers: [],
 
 
@@ -74,8 +74,8 @@ checkAuth: async () => {
   logout: async () => {
     try {
       await axiosInstance.post("/auth/logout");
-            get().disconnectSocket();
-
+            // get().disconnectSocket();
+   disconnectSocket();
       set({ authUser: null });
       toast.success("Logged out successfully");
     } catch (error) {
@@ -119,30 +119,32 @@ updateProfile: async (file) => {
   }
 },
 
-
- 
-connectSocket: () => {
-  const user = get ().authUser ;
-
-if (!user || get().socket?.connected) return;
-  const socket = io(import.meta.env.VITE_BACKEND_URL, {
-    withCredentials: true,
-    query: {
-      userId: user._id,
-    },
-  });
-
-  socket.connect();
-  socket.on("getOnlineUsers" , (users) => {
-    set({getOnlineusers:users}) ;
-  });
-
-  set({ socket });
-},
-
-  disconnectSocket: () => {
-    const socket = get().socket;
-    if (socket?.connected) socket.disconnect();
-    set({socket:null}) ;
-  },
 }));
+ 
+// connectSocket: () => {
+//   const user = get ().authUser ;
+
+// if (!user || get().socket?.connected) return;
+//   const socket = io(import.meta.env.VITE_BACKEND_URL, {
+//     withCredentials: true,
+//     query: {
+//       userId: user._id,
+//     },
+//   });
+
+//   socket.connect();
+//   socket.on("getOnlineUsers" , (users) => {
+//     // set({getOnlineusers:users}) ;
+//     set({ onlineUsers: users })
+
+//   });
+
+//   set({ socket });
+// },
+
+//   disconnectSocket: () => {
+//     const socket = get().socket;
+//     if (socket?.connected) socket.disconnect();
+//     set({socket:null}) ;
+//   },
+// }));

@@ -2,10 +2,13 @@ import axios from "axios";
 
 
 export const axiosInstance = axios.create({
-   baseURL:
+   baseURL:`${import.meta.env.VITE_BACKEND_URL}/api`,
+
   // import.meta.env.VITE_BACKEND_URL === "development"
   //     ? "http://localhost:4000/api"
-       `${import.meta.env.VITE_BACKEND_URL}/api`,
+  headers: {
+    "Content-Type": "application/json",
+  },
 
       
   withCredentials: true,

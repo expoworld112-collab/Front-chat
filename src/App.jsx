@@ -72,7 +72,7 @@ import { useEffect } from "react";
 import PageLoader from "./components/PageLoader.jsx";
 import { Toaster } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore.js";
-import {connectSocket} from "./lib/socket.js";
+import {connectSocket , getSocket} from "./lib/socket.js";
 
 function App() {
   const authUser = useAuthStore((state) => state.authUser);
@@ -87,9 +87,17 @@ function App() {
 
   useEffect(() => {
     if (authUser) {
-      connectSocket();
+    // const socket =  connectSocket();
+    const socket = connectSocket(authUser._id);
+    socket.off(getOnlineUsers) ;
+    socket.on("getOnlineUsers" ,( users) => {
+    //  useAuthStore.getState({ononline: users}) ;
+    useAuthStore.setState({onlineUsers:users})
+    });
       fetchFriendData();
-    }
+    } return () => {
+    socket.off("getOnlineUsers");
+    };
   }, [authUser, fetchFriendData]);
 
   if (isCheckingAuth) return <PageLoader />;

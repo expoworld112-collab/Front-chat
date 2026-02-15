@@ -5,6 +5,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore.js";
+import { connectSocket } from "../lib/socket.js";
 
 export const useChatStore = create((set, get) => ({
   allContacts: [],
@@ -15,7 +16,7 @@ export const useChatStore = create((set, get) => ({
   isUserLoading: false,
   isMessagesLoading: false,
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
-
+  UnreadCounts:{},
   friends: [],
   friendRequests: [],
   sentRequests: [],
@@ -43,11 +44,10 @@ export const useChatStore = create((set, get) => ({
     set({ selectedUser });
   },
 
-  // --- Contacts / Friends ---
   getAllContacts: async () => {
     set({ isUserLoading: true });
     try {
-      const res = await axiosInstance.get("/messages/contacts");
+      const res = await axiosInstance.get("/friends/contacts");
       const { authUser } = useAuthStore.getState();
       const filtered = res.data.filter((u) => u._id !== authUser._id);
       set({ allContacts: filtered });
@@ -123,7 +123,7 @@ export const useChatStore = create((set, get) => ({
     return;
   }
 
-  socket.off("newMessage"); // prevent duplicates
+  socket.off("newMessage"); 
 
   socket.on("newMessage", (message) => {
     console.log("📩 SOCKET MESSAGE RECEIVED:", message);
@@ -152,13 +152,14 @@ getMessagesByUserId: async (userId) => {
 
 
 unsubscribeFromMessages: () => {
-  const socket = useAuthStore.getState().socket;
+  const socket = connectSocket();
   if (!socket) return ;
   socket?.off("newMessage");
 },
 
 subscribeToProfileUpdates: () => {
-  const socket = useAuthStore.getState().socket;
+  // const socket = useAuthStore.getState().socket;
+  const socket = connectSocket();
 
   if (!socket) {
     console.warn("Socket not initialized yet");
@@ -192,62 +193,10 @@ unsubscribeFromProfileUpdates: () => {
   socket.off("profileUpdated");
 },
 
-// sendMessage: async (messageData) => {
-//   const { selectedUser } = get();
-//   const { authUser, socket } = useAuthStore.getState();
 
-//   const tempId = `temp-${Date.now()}`;
 
-//   // Extract optimistic values safely
-//   const isFormData = messageData instanceof FormData;
-//   const text = isFormData ? messageData.get("text") : messageData.text;
-//   const file = isFormData ? messageData.get("file") : null;
 
-//   const optimisticMessage = {
-//     _id: tempId,
-//     senderId: authUser._id,
-//     receiverId: selectedUser._id,
-//     text: text || "",
-//     file: file ? file.name : null,
-//     createdAt: new Date().toISOString(),
-//     isOptimistic: true,
-//   };
 
-//   // 1️⃣ Add optimistic message
-//   set((state) => ({
-//     messages: [...state.messages, optimisticMessage],
-//   }));
-
-//   try {
-//     // 2️⃣ Send to backend
-//     const res = await axiosInstance.post(
-//       `/messages/send/${selectedUser._id}`,
-//       messageData,
-//       isFormData
-//         ? { headers: { "Content-Type": "multipart/form-data" } }
-//         : {}
-//     );
-
-//     // 3️⃣ Replace optimistic with real message
-//     set((state) => ({
-//       messages: state.messages.map((msg) =>
-//         msg._id === tempId ? res.data : msg
-//       ),
-//     }));
-
-//     // 4️⃣ Notify receiver in real time
-//     socket?.emit("newMessage", res.data);
-//   } catch (error) {
-//     // 5️⃣ Rollback on failure
-//     set((state) => ({
-//       messages: state.messages.filter((msg) => msg._id !== tempId),
-//     }));
-
-//     toast.error(
-//       error.response?.data?.message || "Failed to send message"
-//     );
-//   }
-// },
 
 sendMessage: async (receiverId ,messageData) => {
   const { selectedUser } = get();
@@ -270,30 +219,28 @@ sendMessage: async (receiverId ,messageData) => {
     isOptimistic: true,
   };
 
-  // 1️⃣ optimistic UI update
   set((state) => ({
     messages: [...state.messages, optimisticMessage],
   }));
 
   try {
-    // 2️⃣ send to backend
     const res = await axiosInstance.post(
       `/messages/send/${receiverId}`,
       messageData,
-      isFormData
-      //   ? { headers: { "Content-Type": "multipart/form-data" } }
-      //   : {}
+      {
+        withCredentials: true ,
+        headers : isFormData
+        ? {"Content-Type": "multipart/form-data"}
+:{} ,
+      }
     );
 
-    // 3️⃣ replace optimistic with real message
     set((state) => ({
       messages: state.messages.map((msg) =>
         msg._id === tempId ? res.data : msg
       ),
     }));
 
-    // ✅ 4️⃣ emit CORRECT event
-    // socket?.emit("sendMessage", res.data);
 
   } catch (error) {
     // rollback

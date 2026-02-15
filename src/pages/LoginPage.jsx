@@ -56,7 +56,7 @@ function LoginPage() {
                       {/* <UserIcon className="absolute  left-3 top-1/2 transform -translate-y-1/2 text-slate-400"/> */}
                       <Lock className="auth-input-icon" />
                       <input
-                        type="text"
+                        type="password"
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         className="input"

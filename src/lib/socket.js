@@ -26,14 +26,16 @@ import { io } from "socket.io-client";
 
 let socket;
 
-export const connectSocket = () => {
+export const connectSocket = (userId) => {
   if (!socket) {
     const SOCKET_URL =
       import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
     socket = io(SOCKET_URL, {
       withCredentials: true,
-      transports: ["websocket"], // production best practice
+      transports: ["websocket"], 
+      autoConnect: false ,
+      query: {userId} ,
     });
   }
 
@@ -41,6 +43,8 @@ export const connectSocket = () => {
 
   return socket;
 };
-
+ 
 export const getSocket = () => socket;
-
+export const disconnectSocket = () =>{
+  if (socket.connected) socket.disconnect();
+}
