@@ -46,7 +46,7 @@ OnlineUsers :[],
   getAllContacts: async () => {
     set({ isUserLoading: true });
     try {
-      const res = await axiosInstance.get("/friends/contacts");
+      const res = await axiosInstance.get("/messages/contacts");
       const { authUser } = useAuthStore.getState();
       const filtered = res.data.filter((u) => u._id !== authUser._id);
       set({ allContacts: filtered });
