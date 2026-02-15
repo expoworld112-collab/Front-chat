@@ -92,7 +92,7 @@ function App() {
     socket.off(OnlineUsers) ;
     socket.on("OnlineUsers" ,( users) => {
     //  useAuthStore.getState({ononline: users}) ;
-    useAuthStore.setState({onlineUsers:users})
+    useAuthStore.setState({OnlineUsers:users})
     });
       fetchFriendData();
     } return () => {
