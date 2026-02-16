@@ -54,7 +54,7 @@ let socket;
 
 export const connectSocket = () => {
   if (!socket) {
-    socket = io(import .meta.env.VITE_API_URL, {
+    socket = io(import.meta.env.VITE_API_URL, {
       withCredentials: true,
       transports: ["websocket"],
       // autoConnect: false,
