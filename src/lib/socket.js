@@ -52,18 +52,17 @@ import { io } from "socket.io-client";
 
 let socket;
 
-export const connectSocket = (userId) => {
+export const connectSocket = () => {
   if (!socket) {
-    socket = io("/", {
-      path: "/socket.io",
+    socket = io(import .meta.env.VITE_API_URL, {
       withCredentials: true,
       transports: ["websocket"],
-      autoConnect: false,
-      query: { userId },
+      // autoConnect: false,
+      // query: { userId },
     });
   }
 
-  if (!socket.connected) socket.connect();
+  // if (!socket.connected) socket.connect();
 
   return socket;
 };
