@@ -22,20 +22,40 @@ export const useAuthStore = create((set, get) => ({
 
 
 
+// checkAuth: async () => {
+//   try {
+//     const res = await axiosInstance.get("/auth/check", {
+//       withCredentials: true,
+//     });
+
+//     set({ authUser: res.data });
+
+//   } catch (error) {
+//     if (error.response?.status === 401) {
+//       set({ authUser: null });
+//     } else {
+//       console.error("Auth check error:", error);
+//     }
+//   } finally {
+//     set({ isCheckingAuth: false });
+//   }
+// },
 checkAuth: async () => {
+  set({ isCheckingAuth: true });
   try {
-    const res = await axiosInstance.get("/auth/check", {
-      withCredentials: true,
+    const res = await fetch('https://chat-backend-sjx6.onrender.com/api/auth/check', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
     });
-
-    set({ authUser: res.data });
-
-  } catch (error) {
-    if (error.response?.status === 401) {
-      set({ authUser: null });
+    const data = await res.json();
+    if (res.ok) {
+      set({ authUser: data.user });
     } else {
-      console.error("Auth check error:", error);
+      set({ authUser: null });
     }
+  } catch (err) {
+    set({ authUser: null });
   } finally {
     set({ isCheckingAuth: false });
   }
