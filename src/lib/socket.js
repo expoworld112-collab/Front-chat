@@ -22,20 +22,44 @@
 
 // export const getSocket = () => socket;
 
+// import { io } from "socket.io-client";
+
+// let socket;
+
+// export const connectSocket = (userId) => {
+//   if (!socket) {
+//     const SOCKET_URL =
+//       import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
+//     socket = io(SOCKET_URL, {
+//       withCredentials: true,
+//       transports: ["websocket"], 
+//       autoConnect: false ,
+//       query: {userId} ,
+//     });
+//   }
+
+//   if (!socket.connected) socket.connect();
+
+//   return socket;
+// };
+ 
+// export const getSocket = () => socket;
+// export const disconnectSocket = () =>{
+//   if (socket.connected) socket.disconnect();
+// }
 import { io } from "socket.io-client";
 
 let socket;
 
 export const connectSocket = (userId) => {
   if (!socket) {
-    const SOCKET_URL =
-      import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
-
-    socket = io(SOCKET_URL, {
+    socket = io("/", {
+      path: "/socket.io",
       withCredentials: true,
-      transports: ["websocket"], 
-      autoConnect: false ,
-      query: {userId} ,
+      transports: ["websocket"],
+      autoConnect: false,
+      query: { userId },
     });
   }
 
@@ -43,8 +67,9 @@ export const connectSocket = (userId) => {
 
   return socket;
 };
- 
+
 export const getSocket = () => socket;
-export const disconnectSocket = () =>{
-  if (socket.connected) socket.disconnect();
-}
+
+export const disconnectSocket = () => {
+  if (socket?.connected) socket.disconnect();
+};
