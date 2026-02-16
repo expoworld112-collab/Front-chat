@@ -72,7 +72,7 @@ import { useEffect } from "react";
 import PageLoader from "./components/PageLoader.jsx";
 import { Toaster } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore.js";
-import {connectSocket , getSocket} from "./lib/socket.js";
+import {connectSocket} from "./lib/socket.js";
 function App() {
   const authUser = useAuthStore((state) => state.authUser);
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -85,21 +85,24 @@ function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+useEffect(() => {
+  if (!authUser?._id) return;
 
-  useEffect(() => {
-    if (authUser) {
-    // const socket =  connectSocket();
-    const socket = connectSocket(authUser._id);
-    socket.off(OnlineUsers) ;
-    socket.on("OnlineUsers" ,( users) => {
-    //  useAuthStore.getState({ononline: users}) ;
-    useAuthStore.setState({OnlineUsers:users})
-    });
-      fetchFriendData();
-    } return () => {
+  const socket = connectSocket(authUser._id);
+
+  socket.off("OnlineUsers"); // remove old listener
+
+  socket.on("OnlineUsers", (users) => {
+    useChatStore.setState({ OnlineUsers: users });
+  });
+
+  fetchFriendData();
+
+  return () => {
     socket.off("OnlineUsers");
-    };
-  }, [authUser, fetchFriendData]);
+  };
+}, [authUser?._id, fetchFriendData]);
+
 
   if (isCheckingAuth) return <PageLoader />;
 
