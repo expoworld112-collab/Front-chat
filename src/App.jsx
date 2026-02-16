@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import PageLoader from "./components/PageLoader.jsx";
 import { Toaster } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore.js";
-import {connectSocket} from "./lib/socket.js";
+import {connectSocket ,disconnectSocket } from "./lib/socket.js";
 function App() {
   const authUser = useAuthStore((state) => state.authUser);
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -26,16 +26,22 @@ useEffect(() => {
 
   const socket = connectSocket(authUser._id);
 
-  socket.off("OnlineUsers"); // remove old listener
+  // socket.off("OnlineUsers"); // remove old listener
 
-  socket.on("OnlineUsers", (users) => {
-    useChatStore.setState({ onlineUsers: users });
-  });
+  // socket.on("OnlineUsers", (users) => {
+  //   useChatStore.setState({ onlineUsers: users });
+  // });
 
+  const handleOnlineUsers = (users) => {
+    useChatStore.setState({ onlineUsers: users}) ;
+  };
+  socket.on("OnlineUsers" , handleOnlineUsers) ;
   fetchFriendData();
 
   return () => {
-    socket.off("OnlineUsers");
+    socket.off("OnlineUsers" ,handleOnlineUsers);
+          disconnectSocket();
+
   };
 }, [authUser?._id, fetchFriendData]);
 
