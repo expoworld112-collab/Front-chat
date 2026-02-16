@@ -77,7 +77,7 @@ function App() {
   const authUser = useAuthStore((state) => state.authUser);
   const checkAuth = useAuthStore((state) => state.checkAuth);
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-  const OnlineUsers = useChatStore((state) => state.onlineUsers);
+  // const OnlineUsers = useChatStore((state) => state.onlineUsers);
 
 
   const fetchFriendData = useChatStore((state) => state.fetchFriendData);
@@ -93,7 +93,7 @@ useEffect(() => {
   socket.off("OnlineUsers"); // remove old listener
 
   socket.on("OnlineUsers", (users) => {
-    useChatStore.setState({ OnlineUsers: users });
+    useChatStore.setState({ onlineUsers: users });
   });
 
   fetchFriendData();

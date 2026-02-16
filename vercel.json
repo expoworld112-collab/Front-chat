@@ -1,16 +1,7 @@
 {
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://chat-backend-sjx6.onrender.com/api/$1"
-    },
-    {
-      "source": "/socket.io/(.*)",
-      "destination": "https://chat-backend-sjx6.onrender.com/socket.io/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
+    { "source": "/api/:path*", "destination": "https://chat-backend-sjx6.onrender.com/api/:path*" },
+    { "source": "/socket.io/:path*", "destination": "https://chat-backend-sjx6.onrender.com/socket.io/:path*" },
+    { "source": "/:path*", "destination": "/" }
   ]
 }
