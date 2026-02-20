@@ -164,11 +164,11 @@ subscribeToProfileUpdates: () => {
     console.warn("Socket not initialized yet");
     return;
   }
-    socket.on("newMessage", (message) => {
-    set((state) => ({
-      messages: [...state.messages, message],
-    }));
-  });
+  //   socket.on("newMessage", (message) => {
+  //   set((state) => ({
+  //     messages: [...state.messages, message],
+  //   }));
+  // });
 
     socket.off("profileUpdated"); 
 
