@@ -58,7 +58,10 @@ export const connectSocket = () => {
       withCredentials: true,
       transports: ["websocket"],
       // autoConnect: false,
-      // query: { userId },
+      auth: {
+         userId: authUser._id ,
+
+       },
     });
   }
 

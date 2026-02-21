@@ -265,5 +265,21 @@ getMyChatPartners: async () => {
     set({ isUserLoading: false });
   }
 },
+subscribeToOnlineUsers: () => {
+  const socket = useAuthStore.getState().socket;
+  if (!socket) return;
+
+  socket.off("getOnlineUsers");
+
+  socket.on("getOnlineUsers", (users) => {
+    console.log("🟢 Online users:", users);
+    set({ OnlineUsers: users });
+  });
+},
+
+unsubscribeFromOnlineUsers: () => {
+  const socket = useAuthStore.getState().socket;
+  socket?.off("getOnlineUsers");
+},
 
 }));

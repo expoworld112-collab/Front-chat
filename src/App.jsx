@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from "react-router";
 import ChatPage from "./pages/ChatPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -8,42 +7,38 @@ import { useEffect } from "react";
 import PageLoader from "./components/PageLoader.jsx";
 import { Toaster } from "react-hot-toast";
 import { useChatStore } from "./store/useChatStore.js";
+
 function App() {
-  const authUser = useAuthStore((state) => state.authUser);
-  const checkAuth = useAuthStore((state) => state.checkAuth);
-  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-  // const OnlineUsers = useChatStore((state) => state.onlineUsers);
-
-
+  const { authUser, checkAuth, isCheckingAuth, socket } = useAuthStore();
   const fetchFriendData = useChatStore((state) => state.fetchFriendData);
- 
+  const setOnlineUsers = useChatStore((state) => state.setOnlineUsers);
+
+  // ✅ Check auth on app load
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
-// useEffect(() => {
-//   if (!authUser?._id) return;
 
-//   const socket = connectSocket(authUser._id);
+  // ✅ After login → get friend data
+  useEffect(() => {
+    if (authUser?._id) {
+      fetchFriendData();
+    }
+  }, [authUser?._id, fetchFriendData]);
 
-//   // socket.off("OnlineUsers"); // remove old listener
+  // ✅ Listen for online users from socket
+  useEffect(() => {
+    if (!socket) return;
 
-//   // socket.on("OnlineUsers", (users) => {
-//   //   useChatStore.setState({ onlineUsers: users });
-//   // });
+    socket.off("getOnlineUsers");
 
-//   const handleOnlineUsers = (users) => {
-//     useChatStore.setState({ onlineUsers: users}) ;
-//   };
-//   socket.on("OnlineUsers" , handleOnlineUsers) ;
-//   fetchFriendData();
+    socket.on("getOnlineUsers", (users) => {
+      setOnlineUsers(users);
+    });
 
-//   return () => {
-//     socket.off("OnlineUsers" ,handleOnlineUsers);
-//           disconnectSocket();
-
-//   };
-// }, [authUser?._id, fetchFriendData]);
-
+    return () => {
+      socket.off("getOnlineUsers");
+    };
+  }, [socket, setOnlineUsers]);
 
   if (isCheckingAuth) return <PageLoader />;
 
@@ -52,10 +47,6 @@ function App() {
       <Toaster position="top-right" />
 
       <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]" />
-        <div className="absolute top-0 -left-4 size-96 bg-pink-500 opacity-20 blur-[100px]" />
-        <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
-
         <Routes>
           <Route path="/" element={authUser ? <ChatPage /> : <Navigate to="/login" />} />
           <Route path="/chatPage" element={authUser ? <ChatPage /> : <Navigate to="/login" />} />
