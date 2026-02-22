@@ -7,17 +7,41 @@ import ChatsList from "../components/ChatList";
 import ChatContainer from "../components/ChatContainer.jsx";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder.jsx";
 import { useEffect } from 'react';
+import { getMessagesByUserId } from '../../../backend/src/controllers/message.controllers.js';
 
 function ChatPage() {
 const {activeTab , selectedUser} = useChatStore(); 
 
-  useEffect(() => {
-    const { subscribeToProfileUpdates, unsubscribeFromProfileUpdates } = useChatStore.getState();
-    subscribeToProfileUpdates();
+ useEffect(() => {
+  const {
+    subscribeToProfileUpdates,
+    unsubscribeFromProfileUpdates,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  } = useChatStore.getState();
 
-    return () => unsubscribeFromProfileUpdates();
-  }, []);
+  subscribeToProfileUpdates();
 
+  return () => {
+    unsubscribeFromProfileUpdates();
+    unsubscribeFromMessages();
+  };
+}, []);
+useEffect(() => {
+  const {
+    selectedUser,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+    getMessagesByUserId,
+  } = useChatStore.getState();
+
+  if (selectedUser?._id) {
+    getMessagesByUserId(selectedUser._id);   // load chat history
+    subscribeToMessages();                   // start realtime
+  }
+
+  return () => unsubscribeFromMessages();    // stop old listener
+}, [selectedUser]);
   return (
     <div className =" relative w-full max-w-6xl h-[800px]">
       <BorderAnimatedContainer>

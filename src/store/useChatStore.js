@@ -121,22 +121,29 @@ OnlineUsers :[],
     }
   },
 
-  subscribeToMessages: () => {
-  const  socket  = useAuthStore.getState().socket;
+subscribeToMessages: () => {
+  const socket = useAuthStore.getState().socket;
+  const { selectedUser } = get();
 
-  if (!socket) {
-    console.warn("❌ Socket not initialized");
-    return;
-  }
+  if (!socket || !selectedUser) return;
 
-  socket.off("newMessage"); 
+  socket.off("newMessage");
 
   socket.on("newMessage", (message) => {
-    console.log("📩 SOCKET MESSAGE RECEIVED:", message);
+    const isCurrentChat =
+      message.senderId === selectedUser._id ||
+      message.receiverId === selectedUser._id;
 
-    set((state) => ({
-      messages: [...state.messages, message],
-    }));
+    if (!isCurrentChat) return;
+
+    set((state) => {
+      const exists = state.messages.some(m => m._id === message._id);
+      if (exists) return state;
+
+      return {
+        messages: [...state.messages, message],
+      };
+    });
   });
 },
 

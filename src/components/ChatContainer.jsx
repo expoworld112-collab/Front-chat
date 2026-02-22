@@ -23,12 +23,12 @@ const socket = useAuthStore((state) => state.socket);
    
 
    useEffect(() => {
-    if(!selectedUser || !socket) return ;
+    if(!selectedUser) return ;
     getMessagesByUserId(selectedUser._id);
-    subscribeToMessages(socket);
+    subscribeToMessages();
 
-    return () => unsubscribeFromMessages(socket);
-  }, [selectedUser?._id , socket]);
+    return () => unsubscribeFromMessages();
+  }, [selectedUser?._id ]);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
