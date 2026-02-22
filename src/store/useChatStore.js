@@ -39,10 +39,12 @@ OnlineUsers :[],
     const canChat = friends.some((f) => f._id === selectedUser._id);
     if (!canChat) {
       toast.error("You must be friends to chat. Send a friend request first.");
-      set({ selectedUser: null });
-      return;
+                  
+      return set({ selectedUser: null });
     }
-    set({ selectedUser });
+    set({ selectedUser ,
+      messages: [] ,
+     });
   },
 
   getAllContacts: async () => {
@@ -121,20 +123,54 @@ OnlineUsers :[],
     }
   },
 
+// subscribeToMessages: () => {
+//   const socket = useAuthStore.getState().socket;
+//   if(!socket) return ;
+//   const { selectedUser } = get();
+
+//   if (!socket || !selectedUser) return;
+
+//   socket.off("newMessage");
+
+//   socket.on("newMessage", (message) => {
+//     const isCurrentChat =
+//       message.senderId === selectedUser._id ||
+//       message.receiverId === selectedUser._id;
+
+//     if (!isCurrentChat) return;
+
+//     set((state) => {
+//       const exists = state.messages.some(m => m._id === message._id);
+//       if (exists) return state;
+
+//       return {
+//         messages: [...state.messages, message],
+//       };
+//     });
+//   });
+// },
 subscribeToMessages: () => {
   const socket = useAuthStore.getState().socket;
-  const { selectedUser } = get();
-
-  if (!socket || !selectedUser) return;
+  if (!socket) return;
 
   socket.off("newMessage");
 
   socket.on("newMessage", (message) => {
-    const isCurrentChat =
-      message.senderId === selectedUser._id ||
-      message.receiverId === selectedUser._id;
+    const { selectedUser } = get();
+    const { authUser } = useAuthStore.getState();
 
-    if (!isCurrentChat) return;
+    if (!selectedUser) return;
+
+    const senderId = message.senderId?.toString();
+    const receiverId = message.receiverId?.toString();
+    const selectedId = selectedUser._id.toString();
+    const myId = authUser._id.toString();
+
+    const isMessageForThisChat =
+      (senderId === selectedId && receiverId === myId) ||
+      (senderId === myId && receiverId === selectedId);
+
+    if (!isMessageForThisChat) return;
 
     set((state) => {
       const exists = state.messages.some(m => m._id === message._id);
@@ -146,7 +182,6 @@ subscribeToMessages: () => {
     });
   });
 },
-
 getMessagesByUserId: async (userId) => {
   set({ isMessagesLoading: true });
 
