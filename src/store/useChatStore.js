@@ -34,6 +34,8 @@ OnlineUsers :[],
 
   setSelectedUser: (selectedUser) => {
     const { friends } = get();
+    const {authUser} = useAuthStore.getState() ;
+    if(selectedUser._id===authUser._id) return ;
     const canChat = friends.some((f) => f._id === selectedUser._id);
     if (!canChat) {
       toast.error("You must be friends to chat. Send a friend request first.");
@@ -61,8 +63,13 @@ OnlineUsers :[],
     set({ isUserLoading: true });
     try {
       const res = await axiosInstance.get("/friends/incoming");
+      const { authUser } = useAuthStore.getState();
+
+    const filteredFriends = res.data.friends.filter(
+      (f) => f._id !== authUser._id
+    );
       set({
-        friends: res.data.friends,
+        friends: filteredFriends,
         friendRequests: res.data.received,
         sentRequests: res.data.sent,
       });
