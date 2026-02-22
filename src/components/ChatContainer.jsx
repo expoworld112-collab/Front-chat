@@ -74,7 +74,10 @@ const socket = useAuthStore((state) => state.socket);
         ) : (
   <>
     {messages.map((msg) => {
-      const senderId = msg.senderId?.toString();
+const senderId =
+  typeof msg.senderId === "object"
+    ? msg.senderId._id?.toString()
+    : msg.senderId?.toString();
       const authId = authUser?._id?.toString();
 
       const isSender = senderId === authId;

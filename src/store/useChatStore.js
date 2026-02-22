@@ -34,9 +34,9 @@ OnlineUsers :[],
 
   setSelectedUser: (selectedUser) => {
     const { friends } = get();
-    const {authUser} = useAuthStore.getState() ;
-    if(selectedUser._id===authUser._id) return ;
-    const canChat = friends.some((f) => f._id === selectedUser._id);
+    const {authUser} = useAuthStore.getState().authUser ;
+    if(selectedUser._id.toString()===authUser._id.toString()) return ;
+    const canChat = friends.some((f) => f._id.toString === selectedUser._id.toString());
     if (!canChat) {
       toast.error("You must be friends to chat. Send a friend request first.");
                   
